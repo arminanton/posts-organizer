@@ -18,6 +18,9 @@ def _build_settings(tmp_path):
         ig_username=None,
         ig_session_file=tmp_path / 'results' / 'state' / '.ig_session',
         max_ai_images=10,
+        gemini_inline_max_bytes=18_000_000,
+        gemini_use_files_api=True,
+        gemini_use_batch_fallback=True,
         logging=LoggingSettings(
             app_log_file=tmp_path / 'results' / 'logs' / 'app.log',
             error_log_file=tmp_path / 'results' / 'logs' / 'error.log',
@@ -45,6 +48,9 @@ def test_main_uses_non_strict_settings_for_maintenance_commands(monkeypatch, tmp
             ig_username=settings.ig_username,
             ig_session_file=settings.ig_session_file,
             max_ai_images=settings.max_ai_images,
+            gemini_inline_max_bytes=settings.gemini_inline_max_bytes,
+            gemini_use_files_api=settings.gemini_use_files_api,
+            gemini_use_batch_fallback=settings.gemini_use_batch_fallback,
             logging=settings.logging,
         )
 

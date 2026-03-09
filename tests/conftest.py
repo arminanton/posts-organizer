@@ -22,6 +22,9 @@ def sample_settings(tmp_path: Path) -> AppSettings:
         ig_username="sample-user",
         ig_session_file=results_root / "state" / ".ig_session",
         max_ai_images=10,
+        gemini_inline_max_bytes=18_000_000,
+        gemini_use_files_api=True,
+        gemini_use_batch_fallback=True,
         logging=LoggingSettings(
             app_log_file=results_root / "logs" / "app.log",
             error_log_file=results_root / "logs" / "error.log",

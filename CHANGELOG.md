@@ -109,3 +109,13 @@ this project.
   project instead of only the Step 6 summary
 - Removed stray `.pytest_cache` content from the packaged archive during the
   changelog refresh
+
+
+## Gemini large-payload handling pass
+
+- Added inline payload planning so large image prompts can be detected before request dispatch
+- Added Gemini Files API support for oversized image sets
+- Added best-effort cleanup for uploaded Gemini Files API assets after use
+- Added ordered batch-analysis fallback with final synthesis when the Files API path fails
+- Added configuration flags for inline byte ceiling, Files API enablement, and batch fallback enablement
+- Expanded tests to cover the new Gemini transport strategy

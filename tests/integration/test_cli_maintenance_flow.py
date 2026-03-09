@@ -22,6 +22,9 @@ def test_cli_maintenance_commands_roundtrip(tmp_path: Path):
         ig_username=None,
         ig_session_file=tmp_path / 'results' / 'state' / '.ig_session',
         max_ai_images=10,
+        gemini_inline_max_bytes=18_000_000,
+        gemini_use_files_api=True,
+        gemini_use_batch_fallback=True,
         logging=LoggingSettings(
             app_log_file=tmp_path / 'results' / 'logs' / 'app.log',
             error_log_file=tmp_path / 'results' / 'logs' / 'error.log',

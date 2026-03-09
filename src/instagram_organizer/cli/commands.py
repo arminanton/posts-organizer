@@ -43,6 +43,9 @@ def build_runtime(settings: AppSettings) -> ApplicationRuntime:
         analyzer=GeminiClient(
             api_key=settings.gemini_api_key,
             model_name=settings.gemini_model,
+            inline_max_bytes=settings.gemini_inline_max_bytes,
+            use_files_api=settings.gemini_use_files_api,
+            use_batch_fallback=settings.gemini_use_batch_fallback,
         )
     )
     primary_tracker = TrackerService(JsonlTrackerRepository(settings.primary_tracker_file))

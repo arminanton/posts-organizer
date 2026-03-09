@@ -71,6 +71,9 @@ class AppSettings:
     ig_username: str | None
     ig_session_file: Path
     max_ai_images: int
+    gemini_inline_max_bytes: int
+    gemini_use_files_api: bool
+    gemini_use_batch_fallback: bool
     logging: LoggingSettings
 
     @classmethod
@@ -127,6 +130,17 @@ class AppSettings:
         results_root = resolve_relative_to_base(base_dir, results_dir_name)
         session_name = data.get('IG_SESSION_FILE', 'state/.ig_session').strip() or 'state/.ig_session'
         max_ai_images = max(1, int(data.get('MAX_AI_IMAGES', '10')))
+        gemini_inline_max_bytes = max(
+            1,
+            int(data.get('GEMINI_INLINE_MAX_BYTES', '18000000')),
+        )
+        gemini_use_files_api = (
+            data.get('GEMINI_USE_FILES_API', 'true').strip().lower() not in {'0', 'false', 'no', 'off'}
+        )
+        gemini_use_batch_fallback = (
+            data.get('GEMINI_USE_BATCH_FALLBACK', 'true').strip().lower()
+            not in {'0', 'false', 'no', 'off'}
+        )
 
         return cls(
             gemini_api_key=gemini_api_key,
@@ -137,6 +151,9 @@ class AppSettings:
             ig_username=data.get('IG_USERNAME', '').strip() or None,
             ig_session_file=resolve_relative_to_base(results_root, session_name),
             max_ai_images=max_ai_images,
+            gemini_inline_max_bytes=gemini_inline_max_bytes,
+            gemini_use_files_api=gemini_use_files_api,
+            gemini_use_batch_fallback=gemini_use_batch_fallback,
             logging=LoggingSettings(
                 level=data.get('LOG_LEVEL', 'INFO').strip().upper(),
                 app_log_file=resolve_relative_to_base(
@@ -224,6 +241,9 @@ class AppSettings:
             'ig_username': self.ig_username,
             'ig_session_file': str(self.ig_session_file),
             'max_ai_images': self.max_ai_images,
+            'gemini_inline_max_bytes': self.gemini_inline_max_bytes,
+            'gemini_use_files_api': self.gemini_use_files_api,
+            'gemini_use_batch_fallback': self.gemini_use_batch_fallback,
             'organized_dir': str(self.organized_dir),
             'manual_dir': str(self.manual_dir),
             'duplicates_dir': str(self.duplicates_dir),

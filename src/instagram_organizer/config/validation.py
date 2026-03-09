@@ -70,6 +70,22 @@ def validate_settings(settings: AppSettings) -> ValidationReport:
         issues.append(ValidationIssue('TARGET_ACCOUNT', 'Target account is empty.', 'error'))
     if settings.max_ai_images < 1:
         issues.append(ValidationIssue('MAX_AI_IMAGES', 'MAX_AI_IMAGES must be at least 1.', 'error'))
+    if settings.gemini_inline_max_bytes < 1:
+        issues.append(
+            ValidationIssue(
+                'GEMINI_INLINE_MAX_BYTES',
+                'GEMINI_INLINE_MAX_BYTES must be at least 1.',
+                'error',
+            )
+        )
+    if not settings.gemini_use_files_api and not settings.gemini_use_batch_fallback:
+        issues.append(
+            ValidationIssue(
+                'GEMINI_TRANSPORT',
+                'At least one large-payload strategy should remain enabled: Files API or batch fallback.',
+                'warning',
+            )
+        )
 
     if not settings.base_dir.exists():
         issues.append(

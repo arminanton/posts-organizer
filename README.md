@@ -1,4 +1,4 @@
-# Instagram - Posts Organizer
+# Instagram Organizer
 
 An enterprise-style Python application that downloads Instagram posts, analyzes
 image-based educational carousel content with Gemini, and organizes the results
@@ -158,7 +158,10 @@ These are the current settings directly consumed by the final application build:
 - `RESULTS_DIR` - runtime output root relative to `BASE_DIR`, defaults to `results`
 - `IG_USERNAME` - Instagram username for loading a saved session
 - `IG_SESSION_FILE` - session file path relative to `RESULTS_DIR`, defaults to `state/.ig_session`
-- `MAX_AI_IMAGES` - maximum number of images sent to Gemini per post, defaults to `10`
+- `MAX_AI_IMAGES` - maximum number of images considered per post, defaults to `10`
+- `GEMINI_INLINE_MAX_BYTES` - safe inline-request byte ceiling, defaults to `18000000`
+- `GEMINI_USE_FILES_API` - when `true`, oversized payloads switch to the Gemini Files API
+- `GEMINI_USE_BATCH_FALLBACK` - when `true`, oversized payloads can fall back to ordered batch analysis plus final synthesis if the Files API path fails
 - `LOG_LEVEL` - logging level, defaults to `INFO`
 - `APP_LOG_FILE` - log path relative to `RESULTS_DIR`, defaults to `logs/app.log`
 - `ERROR_LOG_FILE` - log path relative to `RESULTS_DIR`, defaults to `logs/error.log`
@@ -295,7 +298,10 @@ At a high level, a normal run performs these steps:
 6. Iterate posts, retrying the unfinished shortcode first when applicable
 7. Download one post into a stable per-post workspace
 8. Classify the media as image, mixed, or video
-9. Analyze image or mixed posts with Gemini
+9. Analyze image or mixed posts with Gemini using the best available transport strategy:
+   - inline image parts when the estimated request stays below the safe byte threshold
+   - Files API when the combined payload is larger than the inline threshold
+   - ordered inline batches plus final synthesis if the Files API path fails
 10. Route the result into organized, duplicate, or manual-review output
 11. Export media and metadata into the final folder
 12. Persist tracker records and rebuild indexes
@@ -366,6 +372,8 @@ quality checks.
 
 - The quality of AI-generated titles depends on the quality and clarity of the images
 - Pure video posts are not image-analyzed and are routed as `VIDEO_POST`
+- Large image sets are handled with a transport strategy that prefers inline analysis, then switches to the Gemini Files API, then falls back to ordered batch analysis plus final synthesis if needed
+- Uploaded Gemini Files API assets are deleted after use on a best-effort basis when that API path is taken
 - Instagram access behavior depends on the target account, session validity, and external platform constraints
 - `validate-config` correctly returns a non-zero exit code when required runtime secrets are missing
 
