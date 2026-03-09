@@ -1,0 +1,31 @@
+# Python cache and build artifacts
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Virtual environments and local tooling
+.venv/
+venv/
+.env
+.env.local
+
+# Packaging artifacts
+build/
+dist/
+*.egg-info/
+
+# Runtime output
+results/
+build_summary.json
+
+# Editor and OS noise
+.DS_Store
+.idea/
+.vscode/

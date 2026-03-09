@@ -1,0 +1,58 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "instagram-organizer"
+version = "0.1.0"
+description = "Enterprise-grade Instagram media organizer with Gemini-assisted analysis."
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [
+  { name = "OpenAI for Armin" }
+]
+dependencies = [
+  "google-generativeai>=0.8.0",
+  "instaloader>=4.14",
+  "Pillow>=10.0.0",
+  "python-dotenv>=1.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0.0",
+  "pytest-cov>=5.0.0",
+  "mypy>=1.8.0",
+  "ruff>=0.6.0",
+]
+
+[project.scripts]
+instagram-organizer = "instagram_organizer.cli.main:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "N", "C4", "SIM"]
+
+[tool.mypy]
+python_version = "3.11"
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+strict_optional = true
+check_untyped_defs = true
+disallow_any_generics = false
+plugins = []

@@ -1,0 +1,1 @@
+"""Filesystem-oriented adapters."""
