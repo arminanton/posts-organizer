@@ -15,11 +15,17 @@ class FakeLoader:
         self.saved = filename
 
 
-def test_session_manager_load_and_save(tmp_path: Path) -> None:
+def test_session_manager_load_save_exists_and_clear(tmp_path: Path) -> None:
     session_file = tmp_path / '.ig_session'
     manager = SessionManager(session_file=session_file)
     loader = FakeLoader()
+
     manager.load(loader, 'armin')
     manager.save(loader)
+    session_file.write_text('session', encoding='utf-8')
+
     assert loader.loaded == ('armin', str(session_file))
     assert loader.saved == str(session_file)
+    assert manager.exists() is True
+    assert manager.clear() is True
+    assert manager.exists() is False

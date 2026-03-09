@@ -46,3 +46,16 @@ For image and mixed-media analysis, the application chooses the transport path i
 3. ordered inline batches plus one final synthesis prompt when the Files API path fails and `GEMINI_USE_BATCH_FALLBACK=true`
 
 This design keeps the full-post analysis goal intact without requiring image resizing.
+
+
+## Instagram session management
+
+Use the built-in CLI to create, inspect, and remove the portable Instagram session file:
+
+```bash
+instagram-organizer login
+instagram-organizer session-status
+instagram-organizer logout
+```
+
+The login command prompts securely for the Instagram password and writes the session file to `results/state/.ig_session` by default.

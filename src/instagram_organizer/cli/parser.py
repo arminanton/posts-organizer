@@ -25,9 +25,20 @@ def create_parser() -> ArgumentParser:
     parser.add_argument('--gemini-model', help='Override GEMINI_MODEL.', default=None)
     parser.add_argument('--max-ai-images', help='Override MAX_AI_IMAGES.', default=None)
     parser.add_argument('--log-level', help='Override LOG_LEVEL.', default=None)
+    parser.add_argument('--ig-username', help='Override IG_USERNAME.', default=None)
+    parser.add_argument('--ig-session-file', help='Override IG_SESSION_FILE.', default=None)
 
     subparsers = parser.add_subparsers(dest='command')
     subparsers.add_parser('run', help='Run the Instagram organizer pipeline.')
+    subparsers.add_parser('login', help='Log into Instagram and save a portable session file.')
+
+    session_status = subparsers.add_parser(
+        'session-status',
+        help='Show local Instagram session-file status.',
+    )
+    session_status.add_argument('--json', action='store_true', help='Print session status as JSON.')
+
+    subparsers.add_parser('logout', help='Delete the saved local Instagram session file.')
 
     validate = subparsers.add_parser('validate-config', help='Validate resolved configuration.')
     validate.add_argument('--json', action='store_true', help='Print validation report as JSON.')
@@ -65,6 +76,8 @@ def cli_overrides_from_args(args: Namespace) -> dict[str, str]:
         'GEMINI_MODEL': getattr(args, 'gemini_model', None),
         'MAX_AI_IMAGES': getattr(args, 'max_ai_images', None),
         'LOG_LEVEL': getattr(args, 'log_level', None),
+        'IG_USERNAME': getattr(args, 'ig_username', None),
+        'IG_SESSION_FILE': getattr(args, 'ig_session_file', None),
     }
     for key, value in mapping.items():
         if value is not None:

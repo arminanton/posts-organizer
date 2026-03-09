@@ -16,6 +16,9 @@ from instagram_organizer.config.logging_config import configure_logging
 from instagram_organizer.config.settings import AppSettings
 
 
+STRICT_COMMANDS = {'run'}
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     """Run the command-line application.
 
@@ -28,7 +31,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     args = parse_args(argv)
     command = getattr(args, 'command', 'run') or 'run'
-    strict = command == 'run'
+    strict = command in STRICT_COMMANDS
 
     try:
         settings = AppSettings.from_sources(

@@ -55,6 +55,26 @@ class InstaloaderClient:
 
         self.loader.download_post(post, target=str(workspace))
 
+    def login(self, username: str, password: str) -> None:
+        """Authenticate the underlying Instaloader client interactively."""
+
+        self.loader.login(username, password)
+
+    def two_factor_login(self, code: str) -> None:
+        """Complete an interactive two-factor login flow when required."""
+
+        self.loader.two_factor_login(code)
+
+    def test_login(self) -> str | None:
+        """Return the logged-in username if Instaloader can determine it."""
+
+        tester = getattr(self.loader, 'test_login', None)
+        if callable(tester):
+            return tester()
+        context = getattr(self.loader, 'context', None)
+        username = getattr(context, 'username', None)
+        return str(username) if username else None
+
     def _create_loader(self) -> Any:
         """Create the concrete Instaloader instance lazily."""
 

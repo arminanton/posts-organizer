@@ -87,7 +87,7 @@ class Orchestrator:
                 )
                 self.logger.info('Loaded Instagram session for %s', self.settings.ig_username)
             except FileNotFoundError:
-                self.logger.warning('Session file not found. Continuing without a saved session.')
+                self.logger.warning('Session file not found. Run `instagram-organizer login` to create one, or continue without a saved session.')
             except Exception:
                 self.logger.warning('Could not load saved Instagram session.', exc_info=True)
 

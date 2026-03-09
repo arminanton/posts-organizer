@@ -12,6 +12,7 @@ from argparse import Namespace
 from typing import Any
 
 from instagram_organizer.application.ai_analysis_service import AIAnalysisService
+from instagram_organizer.application.auth_service import AuthService
 from instagram_organizer.application.duplicate_service import DuplicateService
 from instagram_organizer.application.index_service import IndexService
 from instagram_organizer.application.maintenance_service import MaintenanceService
@@ -97,6 +98,17 @@ def build_orchestrator(settings: AppSettings) -> Orchestrator:
     return Orchestrator(settings=settings, runtime=runtime, logger=runtime.logger)
 
 
+def build_auth_service(settings: AppSettings) -> AuthService:
+    """Construct the authentication service used by CLI auth commands."""
+
+    runtime = build_runtime(settings)
+    assert runtime.session_store is not None
+    return AuthService(
+        instagram_client=runtime.instagram_client,
+        session_store=runtime.session_store,
+    )
+
+
 def build_maintenance_service(settings: AppSettings) -> MaintenanceService:
     """Construct the maintenance service used by non-run CLI commands."""
 
@@ -129,6 +141,12 @@ def dispatch(args: Namespace, settings: AppSettings) -> int:
     command = getattr(args, 'command', 'run') or 'run'
     if command == 'run':
         return build_orchestrator(settings).run()
+    if command == 'login':
+        return _login(settings)
+    if command == 'session-status':
+        return _session_status(settings, json_output=bool(getattr(args, 'json', False)))
+    if command == 'logout':
+        return _logout(settings)
     if command == 'validate-config':
         return _validate_config(settings, json_output=bool(getattr(args, 'json', False)))
     if command == 'show-settings':
@@ -140,6 +158,40 @@ def dispatch(args: Namespace, settings: AppSettings) -> int:
     if command == 'rebuild-indexes':
         return _rebuild_indexes(settings)
     raise ValueError(f'Unsupported command: {command}')
+
+
+def _login(settings: AppSettings) -> int:
+    try:
+        message = build_auth_service(settings).login_with_optional_two_factor(settings.ig_username)
+    except Exception as exc:
+        print(f'Login failed: {exc}')
+        return 1
+    print(message)
+    return 0
+
+
+def _session_status(settings: AppSettings, *, json_output: bool) -> int:
+    status = build_auth_service(settings).session_status(settings.ig_username)
+    payload = status.to_dict()
+    if json_output:
+        print(json.dumps(payload, indent=2))
+    else:
+        print(f"Configured Instagram username: {status.username or '(not set)'}")
+        print(f"Session file: {status.session_file}")
+        print(f"Exists: {status.exists}")
+        if status.exists:
+            print(f"Size (bytes): {status.size_bytes}")
+            print(f"Modified (UTC): {status.modified_at_utc}")
+    return 0
+
+
+def _logout(settings: AppSettings) -> int:
+    removed = build_auth_service(settings).logout()
+    if removed:
+        print('Saved Instagram session removed.')
+    else:
+        print('No saved Instagram session file was present.')
+    return 0
 
 
 def _validate_config(settings: AppSettings, *, json_output: bool) -> int:

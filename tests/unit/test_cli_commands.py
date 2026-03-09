@@ -16,7 +16,7 @@ def build_settings(tmp_path: Path) -> AppSettings:
         target_account='target',
         base_dir=tmp_path,
         results_root=tmp_path / 'results',
-        ig_username=None,
+        ig_username='sample-user',
         ig_session_file=tmp_path / 'results' / 'state' / '.ig_session',
         max_ai_images=10,
         gemini_inline_max_bytes=18_000_000,
@@ -27,6 +27,26 @@ def build_settings(tmp_path: Path) -> AppSettings:
             error_log_file=tmp_path / 'results' / 'logs' / 'error.log',
         ),
     )
+
+
+class FakeAuthService:
+    def __init__(self) -> None:
+        self.status_payload = {
+            'username': 'sample-user',
+            'session_file': '/tmp/.ig_session',
+            'exists': True,
+            'size_bytes': 123,
+            'modified_at_utc': '2026-03-09T00:00:00+00:00',
+        }
+
+    def login_with_optional_two_factor(self, username: str | None) -> str:
+        return f'logged in as {username}'
+
+    def session_status(self, username: str | None):
+        return type('Status', (), {'to_dict': lambda self: dict(FakeAuthService().status_payload), 'username': username, 'session_file': '/tmp/.ig_session', 'exists': True, 'size_bytes': 123, 'modified_at_utc': '2026-03-09T00:00:00+00:00'})()
+
+    def logout(self) -> bool:
+        return True
 
 
 def test_dispatch_show_settings_returns_zero(tmp_path: Path, capsys) -> None:
@@ -45,3 +65,29 @@ def test_dispatch_show_run_state_json_returns_zero(tmp_path: Path, capsys) -> No
     out = capsys.readouterr().out
     assert code == 0
     assert 'abc123' in out
+
+
+def test_dispatch_login_and_logout_commands(tmp_path: Path, capsys, monkeypatch) -> None:
+    monkeypatch.setattr('instagram_organizer.cli.commands.build_auth_service', lambda settings: FakeAuthService())
+    settings = build_settings(tmp_path)
+
+    login_code = dispatch(Namespace(command='login'), settings)
+    logout_code = dispatch(Namespace(command='logout'), settings)
+    out = capsys.readouterr().out
+
+    assert login_code == 0
+    assert logout_code == 0
+    assert 'logged in as sample-user' in out
+    assert 'Saved Instagram session removed.' in out
+
+
+def test_dispatch_session_status_json(tmp_path: Path, capsys, monkeypatch) -> None:
+    monkeypatch.setattr('instagram_organizer.cli.commands.build_auth_service', lambda settings: FakeAuthService())
+    settings = build_settings(tmp_path)
+
+    code = dispatch(Namespace(command='session-status', json=True), settings)
+    out = capsys.readouterr().out
+
+    assert code == 0
+    assert 'sample-user' in out
+    assert 'size_bytes' in out

@@ -11,9 +11,13 @@ def test_cli_overrides_are_mapped_from_arguments() -> None:
         '--base-dir', '/tmp/project',
         '--target-account', 'target',
         '--max-ai-images', '5',
+        '--ig-username', 'sample-user',
+        '--ig-session-file', 'state/.ig_session',
         'validate-config',
     ])
     overrides = cli_overrides_from_args(args)
     assert overrides['BASE_DIR'] == '/tmp/project'
     assert overrides['TARGET_ACCOUNT'] == 'target'
     assert overrides['MAX_AI_IMAGES'] == '5'
+    assert overrides['IG_USERNAME'] == 'sample-user'
+    assert overrides['IG_SESSION_FILE'] == 'state/.ig_session'

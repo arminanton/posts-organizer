@@ -15,7 +15,7 @@ def _build_settings(tmp_path):
         target_account='acct',
         base_dir=tmp_path,
         results_root=tmp_path / 'results',
-        ig_username=None,
+        ig_username='sample-user',
         ig_session_file=tmp_path / 'results' / 'state' / '.ig_session',
         max_ai_images=10,
         gemini_inline_max_bytes=18_000_000,
@@ -82,6 +82,27 @@ def test_main_invokes_strict_settings_for_run(monkeypatch, tmp_path):
 
     assert main([]) == 0
     assert calls == [True]
+
+
+def test_main_uses_non_strict_settings_for_login(monkeypatch, tmp_path):
+    monkeypatch.setattr(
+        'instagram_organizer.cli.main.parse_args',
+        lambda argv=None: type('Args', (), {'env_file': None, 'command': 'login'})(),
+    )
+
+    calls: list[bool] = []
+
+    def fake_from_sources(*, env_file=None, overrides=None, strict=True):
+        calls.append(strict)
+        return _build_settings(tmp_path)
+
+    monkeypatch.setattr('instagram_organizer.cli.main.AppSettings.from_sources', fake_from_sources)
+    monkeypatch.setattr('instagram_organizer.cli.main.configure_logging', lambda logging_settings: None)
+    monkeypatch.setattr('instagram_organizer.cli.main.dispatch', lambda args, settings: 0)
+    monkeypatch.setattr('instagram_organizer.cli.main.cli_overrides_from_args', lambda args: {})
+
+    assert main([]) == 0
+    assert calls == [False]
 
 
 def test_package_module_entrypoint_executes_main(monkeypatch):

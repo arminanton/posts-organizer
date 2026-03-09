@@ -119,3 +119,10 @@ this project.
 - Added ordered batch-analysis fallback with final synthesis when the Files API path fails
 - Added configuration flags for inline byte ceiling, Files API enablement, and batch fallback enablement
 - Expanded tests to cover the new Gemini transport strategy
+
+## Native CLI authentication polish pass
+
+- Added `login`, `session-status`, and `logout` commands to manage Instagram authentication through the project CLI
+- Added an application auth service for interactive login, session inspection, and local session-file removal
+- Extended the Instaloader adapter and session manager to support login flows and local session lifecycle operations
+- Updated documentation and configuration examples to remove the need for the external `instaloader --login` bootstrap step in normal usage

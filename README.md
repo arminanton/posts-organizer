@@ -112,7 +112,7 @@ More detail is available in:
 
 - Python 3.11 or newer
 - A Gemini API key
-- Optional Instagram login session for more reliable access to private or rate-sensitive flows
+- Optional Instagram login session for more reliable access to rate-sensitive flows, managed directly by the project CLI
 
 ## Installation
 
@@ -168,16 +168,15 @@ These are the current settings directly consumed by the final application build:
 
 ### Session setup
 
-If you want to reuse an Instagram login session, generate one with Instaloader,
-then make sure the configured session file is available under the configured runtime results tree.
+If you want to reuse an Instagram login session, set `IG_USERNAME` and then use the built-in CLI login command. The project stores a portable session snapshot at the configured `IG_SESSION_FILE` path.
 
 Example:
 
 ```bash
-instaloader --login YOUR_IG_USERNAME
+instagram-organizer login
 ```
 
-Then point `IG_USERNAME` and `IG_SESSION_FILE` to the matching session file path.
+The command prompts securely for the Instagram password and saves the session file under the runtime `results/state/` tree by default.
 
 ## Quick start
 
@@ -218,6 +217,9 @@ The project ships with a multi-command CLI.
 
 ```bash
 instagram-organizer run
+instagram-organizer login
+instagram-organizer session-status
+instagram-organizer logout
 instagram-organizer validate-config
 instagram-organizer show-settings
 instagram-organizer show-run-state
@@ -230,6 +232,22 @@ instagram-organizer rebuild-indexes
 Runs the full download, analysis, routing, persistence, and indexing pipeline.
 This command requires runtime-critical settings such as `GEMINI_API_KEY` and
 `TARGET_ACCOUNT`.
+
+### `login`
+
+Prompts securely for the Instagram password, authenticates through Instaloader,
+and saves a portable session file to the configured `IG_SESSION_FILE` path.
+
+### `session-status`
+
+Shows whether the local Instagram session file exists and prints basic file
+metadata such as size and modification time.
+
+### `logout`
+
+Deletes the saved local Instagram session file. This does not affect the
+Instagram account itself; it only removes the portable session snapshot used by
+the project.
 
 ### `validate-config`
 
