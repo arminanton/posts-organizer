@@ -103,9 +103,11 @@ class AppSettings:
 
         Precedence is applied in this order:
 
-        1. values from the optional ``env_file``
-        2. current ``os.environ`` values
-        3. explicit ``overrides`` passed by the CLI
+        1. values from the explicit ``env_file`` when provided
+        2. values from ``.env`` in the current working directory when present
+           and no explicit ``env_file`` was provided
+        3. current ``os.environ`` values
+        4. explicit ``overrides`` passed by the CLI
 
         Args:
             env_file: Optional dotenv file path.
@@ -185,16 +187,25 @@ class AppSettings:
         """
 
         merged: dict[str, str] = {}
+
+        env_path: Path | None = None
         if env_file:
-            env_path = Path(env_file)
-            if env_path.exists():
-                merged.update(
-                    {
-                        key: value
-                        for key, value in dotenv_values(env_path).items()
-                        if value is not None
-                    }
-                )
+            candidate = Path(env_file).expanduser()
+            env_path = candidate.resolve() if candidate.exists() else candidate
+        else:
+            default_env = Path.cwd() / '.env'
+            if default_env.exists():
+                env_path = default_env.resolve()
+
+        if env_path and env_path.exists():
+            merged.update(
+                {
+                    key: value
+                    for key, value in dotenv_values(env_path).items()
+                    if value is not None
+                }
+            )
+
         merged.update(os.environ)
         if overrides:
             merged.update({key: value for key, value in overrides.items() if value is not None})

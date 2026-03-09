@@ -137,6 +137,7 @@ python -m pip install -e .[dev]
 ## Configuration
 
 Copy `.env.example` to `.env`, then update the values you actually need.
+The CLI automatically loads `./.env` from the current working directory when it exists. Use `--env-file` to point to a different dotenv file.
 
 ```bash
 cp .env.example .env
@@ -184,6 +185,12 @@ Validate configuration first:
 
 ```bash
 instagram-organizer validate-config
+```
+
+Or with an explicit alternate dotenv file:
+
+```bash
+instagram-organizer --env-file .env.prod validate-config
 ```
 
 Review effective settings with secrets redacted:
